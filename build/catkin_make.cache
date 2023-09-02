@@ -1,0 +1,2 @@
+gas_control_package
+-DCATKIN_DEVEL_PREFIX=/home/mazen/Smart_Home_Workspace/devel -DCMAKE_INSTALL_PREFIX=/home/mazen/Smart_Home_Workspace/install -G Unix Makefiles

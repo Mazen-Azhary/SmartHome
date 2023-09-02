@@ -1,0 +1,8 @@
+prefix=/home/mazen/Smart_Home_Workspace/devel
+
+Name: gas_control_package
+Description: Description of gas_control_package
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
