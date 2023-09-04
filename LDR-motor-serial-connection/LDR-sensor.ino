@@ -1,7 +1,5 @@
 #define LDR A0
 
-char msg = ' ';
-int Closed = 0;
 int lightIntensity = 0;
 
 void setup() {
@@ -11,20 +9,8 @@ void setup() {
 
 void loop() { 
   lightIntensity = analogRead(LDR);
-  Serial.println(lightIntensity);
-  delay(1000);
-  
-  if (lightIntensity > 350 && !Closed) {
-    msg = '1';
-    Serial.write(msg);
-    delay(100);
-    Closed = !Closed;
-  } 
-  if (lightIntensity < 350 && Closed) {
-    msg = '0';
-    Serial.write(msg);
-    delay(100);
-    Closed = !Closed;
-  }
+  Serial.write((byte*)&lightIntensity, sizeof(lightIntensity));
+ 
   delay(100);
 }
+

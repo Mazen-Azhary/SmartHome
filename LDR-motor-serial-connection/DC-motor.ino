@@ -2,35 +2,32 @@
 #define H_Input2 12
 #define en 11
 
-char receivedChar = ' ';
-boolean newData = false; 
+int light = 0;
+int Closed = 0;
 
 void setup() {
-  Serial.begin(9600); 
+  Serial.begin(9600);
   pinMode(H_Input1, OUTPUT);
   pinMode(H_Input2, OUTPUT);
   pinMode(en, OUTPUT);
 }
 
 void loop() {
-  if (Serial.available()) {
-    receivedChar = Serial.read();
-    newData = true; 
+  if (Serial.available() >= sizeof(light)) {
+    Serial.readBytes((char*)&light, sizeof(light));
+    
+    if (light > 350 && !Closed) {
+    MotorClose();
+    delay(1000);
+    MotorStop();
+    Closed = !Closed;
   }
-  
-  if (newData) {
-    // Handle the received character
-    Serial.println(receivedChar);
-    if (receivedChar == '1') {
-      MotorClose();
-      delay(1000);
-      MotorStop();
-    } else if (receivedChar == '0') {
-      MotorOpen();
-      delay(1000);
-      MotorStop();
-    }
-    newData = false; // Reset the newData flag
+  if (light < 350 && Closed) {
+    MotorOpen();
+    delay(1000);
+    MotorStop();
+    Closed = !Closed;
+  }
   }
 }
 
