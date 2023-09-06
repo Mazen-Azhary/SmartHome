@@ -1,1 +1,48 @@
 
+#include <ros.h>
+#include <std_msgs/Int32.h>
+
+#define LDR A0
+
+#define echo 5
+#define trig 6
+int time =0 ;
+float distance =0 ;
+ros::NodeHandle nh;
+
+std_msgs::Int32 msg;
+ros::Publisher ultrasonic("ultrasonic", &msg);
+
+void setup()
+{
+  nh.initNode();
+  nh.advertise(ultrasonic);
+  Serial.begin(9600) ;
+  pinMode(trig , OUTPUT) ;
+   pinMode(echo , INPUT) ;
+}
+void ultrasonic_sensor()
+{
+  digitalWrite(trig ,LOW) ; //make sure that trig is low 
+     delayMicroseconds(2) ;
+  digitalWrite(trig ,HIGH) ;
+      delayMicroseconds(2) ;
+  digitalWrite(trig ,LOW) ;
+   time = pulseIn(echo, HIGH); //calcoulate the time of the pulse
+   distance = time * 0.034 / 2;
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  
+  
+}
+void loop()
+{
+  ultrasonic_sensor() ;
+    msg.data = distance ;
+  ultrasonic.publish(&msg);
+ nh.spinOnce();
+  delay(1000); 
+}
+  
