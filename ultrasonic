@@ -2,8 +2,6 @@
 #include <ros.h>
 #include <std_msgs/Int32.h>
 
-#define LDR A0
-
 #define echo 5
 #define trig 6
 int time =0 ;
