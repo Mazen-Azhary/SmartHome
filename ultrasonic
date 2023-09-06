@@ -4,8 +4,9 @@
 
 #define echo 5
 #define trig 6
-int time =0 ;
-float distance =0 ;
+int measurementTime = 0;
+float dist = 0;
+
 ros::NodeHandle nh;
 
 std_msgs::Int32 msg;
@@ -15,32 +16,30 @@ void setup()
 {
   nh.initNode();
   nh.advertise(ultrasonic);
-  Serial.begin(9600) ;
-  pinMode(trig , OUTPUT) ;
-   pinMode(echo , INPUT) ;
+  Serial.begin(9600);
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
 }
+
 void ultrasonic_sensor()
 {
-  digitalWrite(trig ,LOW) ; //make sure that trig is low 
-     delayMicroseconds(2) ;
-  digitalWrite(trig ,HIGH) ;
-      delayMicroseconds(2) ;
-  digitalWrite(trig ,LOW) ;
-   time = pulseIn(echo, HIGH); //calcoulate the time of the pulse
-   distance = time * 0.034 / 2;
+  digitalWrite(trig, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+  measurementTime = pulseIn(echo, HIGH);
+  dist = measurementTime * 0.034 / 2;
   Serial.print("Distance: ");
-  Serial.print(distance);
+  Serial.print(dist);
   Serial.println(" cm");
-
-  
-  
 }
+
 void loop()
 {
-  ultrasonic_sensor() ;
-    msg.data = distance ;
+  ultrasonic_sensor();
+  msg.data = dist;
   ultrasonic.publish(&msg);
- nh.spinOnce();
-  delay(1000); 
+  nh.spinOnce();
+  delay(1000);
 }
-  
