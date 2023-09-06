@@ -1,17 +1,73 @@
-
 #include <ros.h>
 #include <std_msgs/Int32.h>
-#include <Servo.h>
 #include <std_msgs/Int32.h>
-#define echo 5
-#define trig 6
-int measurementTime = 0;
+#include <Servo.h>
+
 Servo myServo;
 int pos = 0;
 int flag = 0;
 int servo1 = 0;
-ros::Subscriber<std_msgs::Int32> servo_sub("/ldr_data", &servoCallback);
+
+ros::NodeHandle nh;
+ros::Publisher<std_msgs::Int32> ultrasonic("ultrasonic", &servo_msg);
+ros::Subscriber<std_msgs::Int32> sub("ultrasonic",&servoCallback );
 std_msgs::Int32 servo_msg;
+
+#define echo 5
+#define trig 6
+
+int measurementTime = 0;
+float dist = 0;
+
+void setup()
+{
+  nh.initNode();
+  nh.advertise(ultrasonic);
+  nh.subscribe(servo_sub);
+  Serial.begin(9600);
+  
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+  myServo.attach(4);
+}
+
+void ultrasonic_sensor()
+{
+  digitalWrite(trig, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+  
+  measurementTime = pulseIn(echo, HIGH);
+  dist = measurementTime * 0.034 / 2;
+  
+  Serial.print("Distance: ");
+  Serial.print(dist);
+  Serial.println(" cm");
+}
+
+void servo_on()
+{
+  for (pos = 0; pos <= 90; pos += 1)
+  {
+    myServo.write(pos);
+    delay(5);
+  }
+  
+  for (pos = 90; pos >= 0; pos -= 1)
+  {
+    myServo.write(pos);
+    delay(2);
+  }
+}
+
+void servo_off()
+{
+  myServo.write(0);
+  delay(2);
+}
+
 void servoCallback(const std_msgs::Int32& msg)
 {
   servo1 = msg.data;
@@ -31,62 +87,13 @@ void servoCallback(const std_msgs::Int32& msg)
     flag = 0;
   }
 }
-void servo_on() {
-  for (pos = 0; pos <= 90; pos += 1) {
-    myServo.write(pos);
-    delay(5);
-  }
-  for (pos = 90; pos >= 0; pos -= 1) {
-    myServo.write(pos);
-    delay(2);
-  }
-}
-
-void servo_off() {
-  myServo.write(0);
-  delay(2);
-}
-
-
-
-float dist = 0;
-
-ros::NodeHandle nh;
-
-std_msgs::Int32 msg;
-ros::Publisher ultrasonic("ultrasonic", &msg);
-
-void setup()
-{
-  nh.initNode();
-  nh.advertise(ultrasonic);
-  Serial.begin(9600);
-  pinMode(trig, OUTPUT);
-  pinMode(echo, INPUT);
-   myServo.attach(4);
-  nh.initNode();
-  nh.subscribe(servo_sub);
-}
-
-void ultrasonic_sensor()
-{
-  digitalWrite(trig, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trig, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trig, LOW);
-  measurementTime = pulseIn(echo, HIGH);
-  dist = measurementTime * 0.034 / 2;
-  Serial.print("Distance: ");
-  Serial.print(dist);
-  Serial.println(" cm");
-}
 
 void loop()
 {
   ultrasonic_sensor();
-  msg.data = dist;
-  ultrasonic.publish(&msg);
+  servo_msg.data = dist;
+  ultrasonic.publish(&servo_msg);
   nh.spinOnce();
   delay(1000);
 }
+
