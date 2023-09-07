@@ -1,0 +1,37 @@
+#include <ros.h>
+#include <std_msgs/Int32.h>
+#define RED 10
+#define BUZZER 2  
+#define GasSensor A3
+ros::NodeHandle nh;
+
+std_msgs::Int32 gas_emergency_msg;
+
+ros::Publisher gas_emergency_pub("gas_sensor_reading", &gas_emergency_msg);
+
+void setup() {
+  nh.initNode();
+  nh.advertise(gas_emergency_pub);  // Advertise the publisher
+  pinMode(RED, OUTPUT);
+  digitalWrite(RED, LOW);
+  pinMode(BUZZER, OUTPUT);
+  digitalWrite(BUZZER, LOW);
+}
+
+void loop() {
+  // Simulate some value for gas_emergency_msg.data
+  gas_emergency_msg.data = analogRead(GasSensor);  // Change this value as needed
+
+  // Publish the gas_emergency_msg
+  gas_emergency_pub.publish(&gas_emergency_msg);
+
+  if (gas_emergency_msg.data > 40) {  
+    digitalWrite(RED, HIGH);
+    digitalWrite(BUZZER, HIGH);
+  } else {  
+    digitalWrite(RED, LOW);
+    digitalWrite(BUZZER, LOW);
+  }
+  delay(1000);
+  nh.spinOnce();
+}
