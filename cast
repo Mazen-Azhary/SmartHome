@@ -10,7 +10,7 @@ int servo1 = 0;
 
 ros::NodeHandle nh;
 ros::Publisher<std_msgs::Int32> ultrasonic("ultrasonic", &servo_msg);
-ros::Subscriber<std_msgs::Int32> sub("ultrasonic",&servoCallback );
+ros::Subscriber<std_msgs::Int32> servo_sub("ultrasonic",&servoCallback );
 std_msgs::Int32 servo_msg;
 
 #define echo 5
