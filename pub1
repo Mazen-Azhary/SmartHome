@@ -25,13 +25,7 @@ void loop() {
   // Publish the gas_emergency_msg
   gas_emergency_pub.publish(&gas_emergency_msg);
 
-  if (gas_emergency_msg.data > 40) {  
-    digitalWrite(RED, HIGH);
-    digitalWrite(BUZZER, HIGH);
-  } else {  
-    digitalWrite(RED, LOW);
-    digitalWrite(BUZZER, LOW);
-  }
+ 
   delay(1000);
   nh.spinOnce();
 }
