@@ -1,32 +1,83 @@
 #include <ros.h>
-#include <std_msgs/Int32.h>  // Change to Int32 data type
+#include <Servo.h>
+#include <std_msgs/Int32.h> 
 #define RED 10
 #define Buzzer 2
+//
+Servo myServo;
+#define ServoPin 4
+int pos = 0;
+int flag = 0;
+int servo1 = 0;
+//
 ros::NodeHandle nh;
 
-std_msgs::Int32 gas_emergency_msg;  // Change to Int32 data type
+std_msgs::Int32 gas_emergency_msg; 
+std_msgs::Int32 servo_msg;
 
-void gasEmergencyCallback(const std_msgs::Int32& msg) {  // Change to Int32 data type
+void servo_on() {
+  for (pos = 0; pos <= 90; pos += 1) {
+    myServo.write(pos);
+    delay(5);
+  }
+  for (pos = 90; pos >= 0; pos -= 1) {
+    myServo.write(pos);
+    delay(2);
+  }
+}
+
+void servo_off() {
+  myServo.write(0);
+  delay(2);
+}
+
+
+void servoCallback(const std_msgs::Int32& msg)
+{
+  servo1 = msg.data;
+
+  if (servo1 < 15 && flag == 0)
+  {
+    servo_on();
+    delay(1000);
+    flag = 1;
+  }
+
+  if (servo1 > 15 && flag == 1)
+  {
+    servo_off();
+    delay(1000);
+    flag = 0;
+  }
+}
+
+
+void gasEmergencyCallback(const std_msgs::Int32& msg) {  
   gas_emergency_msg = msg;
 }
 
-ros::Subscriber<std_msgs::Int32> gas_emergency_sub("gas_sensor_reading", &gasEmergencyCallback);  // Change to Int32 data type
-//           ros::Subscriber<std_msgs::Int32> gas_emergency_sub("ultrasonic", &servoCallback);  // Change to Int32 data type
+ros::Subscriber<std_msgs::Int32> gas_emergency_sub("gas_sensor_reading", &gasEmergencyCallback);  
+ros::Subscriber<std_msgs::Int32> servo_sub("ultrasonic", &servoCallback);  
 
 
 void setup() {
   nh.initNode();
+   myServo.attach(ServoPin);
+   nh.subscribe(servo_sub);
+  
+  
   nh.subscribe(gas_emergency_sub);
   pinMode(RED, OUTPUT);
   digitalWrite(RED, LOW);
-  pinMode(Buzzer, OUTPUT);  // Initialize the Buzzer as an output
-  digitalWrite(Buzzer, LOW);  // Initialize the Buzzer off
+  pinMode(Buzzer, OUTPUT);  
+  digitalWrite(Buzzer, LOW);  
 }
 
 void loop() {
   if (gas_emergency_msg.data > 40) {  
     digitalWrite(RED, HIGH);
-    digitalWrite(Buzzer, HIGH);    
+    digitalWrite(Buzzer, HIGH);   
+   delay(10000); 
   }
   else if (gas_emergency_msg.data > 25) {  
     digitalWrite(RED, LOW);
