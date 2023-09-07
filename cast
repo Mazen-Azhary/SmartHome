@@ -9,7 +9,7 @@ int flag = 0;
 float servo1 = 0;
 
 ros::NodeHandle nh;
-ros::Publisher<std_msgs::Int32> ultrasonic("ultrasonic", &servo_msg);
+ros::Publisher<std_msgs::Int32> ultrasonic("ultrasonic", &msg);
 ros::Subscriber<std_msgs::Int32> servo_sub("ultrasonic",&servoCallback );
 std_msgs::Int32 msg;
 
@@ -91,7 +91,7 @@ void servoCallback(const std_msgs::Int32& msg)
 void loop()
 {
   ultrasonic_sensor();
-  servo_msg.data = dist;
+  msg.data = dist;
   ultrasonic.publish(&msg);
   nh.spinOnce();
   delay(1000);
