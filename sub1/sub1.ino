@@ -1,4 +1,5 @@
 #include <ros.h>
+#include <EEPROM.h>
 #include <Servo.h>
 #include <std_msgs/Int32.h>
 
@@ -10,15 +11,24 @@
 Servo myServo;
 #define ServoPin 4
 
+//servo2 (bab el sha2a)
+int servosignal=5;
+Servo myServo1 ;
+int pos1 =0 ;
 //define the DC-motor
 #define H1 7
 #define H2 8
 #define EN 6
 #define WHITE 5
+////////////////////
+volatile bool isPasswordCorrect = false;
+char storedPassword[] = "123"; 
+//eeprom pass
+
 //initializing variables
 int light = 0;
 
-//;
+//
 int pos = 0;
 int closed = 0;
 int servo1 = 0;
@@ -28,6 +38,20 @@ ros::NodeHandle nh;
 std_msgs::Int32 gas_emergency_msg;
 std_msgs::Int32 servo_msg;
 std_msgs::Int32 light_msg;
+
+
+
+//ISR function
+void interruptFunction() {
+  char receivedPassword[50];
+  for (int i = 0; i < sizeof(storedPassword); i++) {
+    receivedPassword[i] = EEPROM.read(i);
+  }
+  if (strcmp(receivedPassword, storedPassword) == 0) {
+    isPasswordCorrect = true;
+  }
+}
+
 
 
 
@@ -58,7 +82,9 @@ void gasEmergencyCallback(const std_msgs::Int32& msg) {
     digitalWrite(RED, HIGH);
     digitalWrite(Buzzer, HIGH);
     servo_on();
+    servo2_on();
     motoropen();
+    
     delay(10000);
   }
   else if (gas_emergency_msg.data > 25) {
@@ -119,7 +145,8 @@ pinMode(WHITE, OUTPUT);
   pinMode(H2, OUTPUT);
   pinMode(EN, OUTPUT);
   nh.subscribe(LDR_sub);
-
+attachInterrupt(ServoPin, interruptFunction, RISING);
+// for some reason here the DigitalPinToInterrupt func was producing compilation errors here so we removed it 
 
 }
 
@@ -148,6 +175,20 @@ void servo_off() {
   delay(2);
 }
 
+
+void servo2_on(){
+     	for(pos1=0 ;pos1<=90 ;pos1+=1) //make servo angle inc
+        {myServo1.write(pos1);
+           delay(5);}
+         for(pos1=90 ;pos1>=0 ;pos1-=1) //make servo angle dec
+            {
+          myServo1.write(pos1);
+                 delay(2);}
+}
+void servo2_off(){
+  myServo1.write(0);
+  
+        delay(10);  }
 
 // Motor On,Off and Stop Functions
 void motorclose()
