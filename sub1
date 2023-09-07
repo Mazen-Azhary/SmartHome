@@ -1,0 +1,40 @@
+#include <ros.h>
+#include <std_msgs/Int32.h>  // Change to Int32 data type
+#define RED 10
+#define Buzzer 2
+ros::NodeHandle nh;
+
+std_msgs::Int32 gas_emergency_msg;  // Change to Int32 data type
+
+void gasEmergencyCallback(const std_msgs::Int32& msg) {  // Change to Int32 data type
+  gas_emergency_msg = msg;
+}
+
+ros::Subscriber<std_msgs::Int32> gas_emergency_sub("gas_sensor_reading", &gasEmergencyCallback);  // Change to Int32 data type
+//           ros::Subscriber<std_msgs::Int32> gas_emergency_sub("ultrasonic", &servoCallback);  // Change to Int32 data type
+
+
+void setup() {
+  nh.initNode();
+  nh.subscribe(gas_emergency_sub);
+  pinMode(RED, OUTPUT);
+  digitalWrite(RED, LOW);
+  pinMode(Buzzer, OUTPUT);  // Initialize the Buzzer as an output
+  digitalWrite(Buzzer, LOW);  // Initialize the Buzzer off
+}
+
+void loop() {
+  if (gas_emergency_msg.data > 40) {  
+    digitalWrite(RED, HIGH);
+    digitalWrite(Buzzer, HIGH);
+    
+  } else if(gas_emergency.data>25)  {
+    digitalWrite(RED, LOW);
+    digitalWrite(Buzzer, LOW);}
+}else{digitalWrite(RED, LOW);
+    digitalWrite(Buzzer, LOW);}
+    
+  }
+  delay(1000);
+  nh.spinOnce();
+}
