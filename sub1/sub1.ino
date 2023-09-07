@@ -14,10 +14,11 @@ Servo myServo;
 #define H1 7
 #define H2 8
 #define EN 6
-
+#define WHITE 5
 //initializing variables
 int light = 0;
-int flag = 0;
+
+//;
 int pos = 0;
 int closed = 0;
 int servo1 = 0;
@@ -35,24 +36,38 @@ void servoCallback(const std_msgs::Int32& msg)
 {
   servo1 = msg.data;
 
-  if (servo1 < 15 && flag == 0)
+  if (servo1 < 15)
   {
     servo_on();
-    delay(1000);
-    flag = 1;
+    delay(5000);
+    
   }
 
-  if (servo1 > 15 && flag == 1)
+  if (servo1 > 15 )
   {
     servo_off();
-    delay(1000);
-    flag = 0;
+    delay(5000);
+    
   }
 }
 
-// Gas Sensor callBack function
+
 void gasEmergencyCallback(const std_msgs::Int32& msg) {
   gas_emergency_msg = msg;
+  if (gas_emergency_msg.data > 40) {
+    digitalWrite(RED, HIGH);
+    digitalWrite(Buzzer, HIGH);
+    servo_on();
+    motoropen();
+    delay(10000);
+  }
+  else if (gas_emergency_msg.data > 25) {
+    digitalWrite(RED, LOW);
+    digitalWrite(Buzzer, LOW);
+  } else {
+    digitalWrite(RED, LOW);
+    digitalWrite(Buzzer, LOW);
+  }
 }
 
 
@@ -63,16 +78,16 @@ void lightCallback(const std_msgs::Int32& msg)
 
   if (light > 200 && closed == 0)
   {
-    motorclose();
-    delay(1000);
+    motoropen();
+    delay(5000);
     motorstop();
-    closed = !closed;
+     closed = !closed;
   }
 
   if (light < 200 && closed == 1)
   {
-    motoropen();
-    delay(1000);
+    motorclose();
+    delay(5000);
     motorstop();
     closed = !closed;
   }
@@ -88,13 +103,14 @@ ros::Subscriber<std_msgs::Int32> LDR_sub("LDR_Topic", &lightCallback);
 
 void setup() {
   nh.initNode();
-  Serial.begin(9600);
-
+  
   myServo.attach(ServoPin);
   nh.subscribe(servo_sub);
-
+  
+pinMode(WHITE, OUTPUT);
   pinMode(RED, OUTPUT);
   digitalWrite(RED, LOW);
+  digitalWrite(WHITE, LOW);
   pinMode(Buzzer, OUTPUT);
   digitalWrite(Buzzer, LOW);
   nh.subscribe(gas_emergency_sub);
@@ -108,19 +124,7 @@ void setup() {
 }
 
 void loop() {
-  if (gas_emergency_msg.data > 40) {
-    digitalWrite(RED, HIGH);
-    digitalWrite(Buzzer, HIGH);
-    servo_on();
-    delay(10000);
-  }
-  else if (gas_emergency_msg.data > 25) {
-    digitalWrite(RED, LOW);
-    digitalWrite(Buzzer, LOW);
-  } else {
-    digitalWrite(RED, LOW);
-    digitalWrite(Buzzer, LOW);
-  }
+  
 
   
   nh.spinOnce();
@@ -148,6 +152,7 @@ void servo_off() {
 // Motor On,Off and Stop Functions
 void motorclose()
 {
+  digitalWrite(WHITE,LOW);
   analogWrite(EN, 100);
   digitalWrite(H2, HIGH);
   digitalWrite(H1, LOW);
@@ -156,6 +161,7 @@ void motorclose()
 
 void motoropen()
 {
+  digitalWrite(WHITE,HIGH);
   analogWrite(EN, 100);
   digitalWrite(H1, HIGH);
   digitalWrite(H2, LOW);
@@ -164,6 +170,8 @@ void motoropen()
 
 void motorstop()
 {
+    digitalWrite(WHITE,LOW);
+
   analogWrite(EN, 0);
   digitalWrite(H1, LOW);
   digitalWrite(H2, LOW);
