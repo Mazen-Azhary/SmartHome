@@ -9,7 +9,8 @@ int flag = 0;
 float servo1 = 0;
 
 ros::NodeHandle nh;
-ros::Publisher<std_msgs::Int32> ultrasonic("ultrasonic", &msg);
+ros::Publisher<std_msgs::Int32> ultrasonic("ultrasonic", 1);
+
 ros::Subscriber<std_msgs::Int32> servo_sub("ultrasonic",&servoCallback );
 std_msgs::Int32 msg;
 
