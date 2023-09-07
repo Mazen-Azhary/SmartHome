@@ -63,18 +63,18 @@ void lightCallback(const std_msgs::Int32& msg)
 
   if (light > 200 && closed == 0)
   {
-    motoropen();
+    motorclose();
     delay(1000);
     motorstop();
-    flag = 1;
+    closed = !closed;
   }
 
   if (light < 200 && closed == 1)
   {
-    motorclose();
+    motoropen();
     delay(1000);
     motorstop();
-    flag = 0;
+    closed = !closed;
   }
 }
 
