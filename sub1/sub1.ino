@@ -19,7 +19,7 @@ Servo myServo;
 int light = 0;
 int flag = 0;
 int pos = 0;
-int flag = 0;
+int closed = 0;
 int servo1 = 0;
 
 ros::NodeHandle nh;
@@ -60,10 +60,8 @@ void gasEmergencyCallback(const std_msgs::Int32& msg) {
 void lightCallback(const std_msgs::Int32& msg)
 {
   light = msg.data;
-  Serial.print("LDR reading: ");
-  Serial.println(light);
 
-  if (light > 200 && flag == 0)
+  if (light > 200 && closed == 0)
   {
     motoropen();
     delay(1000);
@@ -71,7 +69,7 @@ void lightCallback(const std_msgs::Int32& msg)
     flag = 1;
   }
 
-  if (light < 200 && flag == 1)
+  if (light < 200 && closed == 1)
   {
     motorclose();
     delay(1000);
