@@ -11,7 +11,7 @@ float servo1 = 0;
 ros::NodeHandle nh;
 ros::Publisher<std_msgs::Int32> ultrasonic("ultrasonic", &servo_msg);
 ros::Subscriber<std_msgs::Int32> servo_sub("ultrasonic",&servoCallback );
-std_msgs::Int32 servo_msg;
+std_msgs::Int32 msg;
 
 #define echo 5
 #define trig 6
@@ -92,7 +92,7 @@ void loop()
 {
   ultrasonic_sensor();
   servo_msg.data = dist;
-  ultrasonic.publish(&servo_msg);
+  ultrasonic.publish(&msg);
   nh.spinOnce();
   delay(1000);
 }
