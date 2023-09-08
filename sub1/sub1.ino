@@ -132,7 +132,7 @@ void setup() {
   
   myServo.attach(ServoPin);
   nh.subscribe(servo_sub);
-  
+   myServo.attach(servosignal);
 pinMode(WHITE, OUTPUT);
   pinMode(RED, OUTPUT);
   digitalWrite(RED, LOW);
@@ -145,7 +145,7 @@ pinMode(WHITE, OUTPUT);
   pinMode(H2, OUTPUT);
   pinMode(EN, OUTPUT);
   nh.subscribe(LDR_sub);
-attachInterrupt(ServoPin, interruptFunction, RISING);
+attachInterrupt(servosignal, interruptFunction, RISING);
 // for some reason here the DigitalPinToInterrupt func was producing compilation errors here so we removed it 
 
 }
