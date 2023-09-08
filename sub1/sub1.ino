@@ -9,7 +9,7 @@
 
 //define the servo
 Servo myServo;
-#define ServoPin 4
+#define ServoPin 9
 
 //servo2 (bab el sha2a)
 int servosignal=5;
