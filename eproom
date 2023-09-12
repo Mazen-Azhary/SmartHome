@@ -1,0 +1,77 @@
+#include <EEPROM.h>
+#include <ros.h>
+#include <std_msgs/String.h>
+#include <Servo.h>
+
+ros::NodeHandle nh;
+Servo doorservo;
+
+const unsigned int passwordAddress = 0; // EEPROM address to store password
+const byte passwordLength = 3; // password length
+
+char storedPassword[] = "123";
+
+volatile bool receivedInterrupt = false; // Flag to indicate interrupt received
+volatile bool passwordMatched = false; // Flag to indicate password matched
+#define doorServoPin 3
+int pos =0 ;
+
+void setup()
+{
+  EEPROM.get(passwordAddress, storedPassword); // Read password from EEPROM
+
+  nh.initNode();
+  nh.subscribe("password_topic", &passwordCallback);
+ 
+  // Configuring servo and interrupt
+  doorservo.attach(doorServoPin);
+  attachInterrupt(digitalPinToInterrupt(doorServoPin), servoInterrupt, CHANGE);
+}
+
+void loop()
+{
+  if (receivedInterrupt)
+  {
+    receivedInterrupt = false;
+
+    if (passwordMatched)
+    {
+      doorservo_on();
+    }
+    else
+    {
+      nh.loginfo("Invalid password!");
+    }
+
+    // Reset flags
+    passwordMatched = false;
+  }
+
+  nh.spinOnce();
+}
+
+void passwordCallback(const std_msgs::String& msg)
+{
+  if (msg.data.length() == passwordLength)
+  {
+    if (msg.data == storedPassword)
+    {
+      passwordMatched = true; // Set flag to indicate password matched
+    }
+  }
+}
+
+void servoInterrupt()
+{
+  receivedInterrupt = true; // Set flag to indicate interrupt received
+}
+
+void doorservo_on()
+{
+  for (int pos = 0; pos <= 90; pos += 1)
+  {
+    doorservo.write(pos);
+    delay(2);
+  }
+  delay(2000);
+}
