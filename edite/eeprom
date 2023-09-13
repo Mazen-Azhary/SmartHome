@@ -6,41 +6,43 @@
 ros::NodeHandle nh;
 Servo doorservo;
 
-const unsigned int passwordAddress = 0; // EEPROM address to store password
+const byte passwordAddress = 0; // EEPROM address to store password
 const byte passwordLength = 3; // password length
 
-char storedPassword[] = "123";
+char storedPassword[] = "123"; //stored pass
 
 volatile bool receivedInterrupt = false; // Flag to indicate interrupt received
 volatile bool passwordMatched = false; // Flag to indicate password matched
-#define doorServoPin 3
-int pos =0 ;
+#define doorServPin 3
+int pos2 = 0;       //detrmein te pos of the door servo 
+
+String entered_pass; //variable used to store in it the data that recevied from python node
 
 void setup()
 {
   EEPROM.get(passwordAddress, storedPassword); // Read password from EEPROM
 
   nh.initNode();
-  nh.subscribe("password_topic", &passwordCallback);
- 
+  nh.subscribe("password_topic", &passwordCallback); // sub subscrieb on the password_topic topic
+
   // Configuring servo and interrupt
   doorservo.attach(doorServoPin);
-  attachInterrupt(digitalPinToInterrupt(doorServoPin), servoInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(doorServoPin), servoInterrupt, CHANGE); //use interuppt to open room door
 }
 
 void loop()
 {
-  if (receivedInterrupt)
+  if(receivedInterrupt) //flage used to check if intruppt is start
   {
-    receivedInterrupt = false;
+    receivedInterrupt = false; //rest flage 
 
-    if (passwordMatched)
+    if (passwordMatched) //flage used to check the enter password is the same or not
     {
-      doorservo_on();
+      doorservo_on(); //func used to open the door servo
     }
     else
     {
-      nh.loginfo("Invalid password!");
+      nh.loginfo("Invalid password!"); //send to thise node terminal  Invalid password 
     }
 
     // Reset flags
@@ -52,27 +54,30 @@ void loop()
 
 void passwordCallback(const std_msgs::String& msg)
 {
-  if (msg.data.length() == passwordLength)
-  {
-    if (msg.data == storedPassword)
-    {
-      passwordMatched = true; // Set flag to indicate password matched
-    }
-  }
+  // store the entered password 
+  entered_pass = msg.data;
 }
 
 void servoInterrupt()
 {
+  // check if entered password matches stored password
+  if (entered_pass.length() == passwordLength)
+  {
+    if (entered_pass == storedPassword)
+    {
+      passwordMatched = true; // Set flag to indicate password matched
+    }
+  }
+
   receivedInterrupt = true; // Set flag to indicate interrupt received
 }
 
-void doorservo_on()
+ doorservo_on()
 {
-  for (int pos = 0; pos <= 90; pos += 1)
+  for (pos2 = 0; pos2 <= 90; pos2 += 1)
   {
-    doorservo.write(pos);
+    doorservo.write(pos2);
     delay(2);
   }
-  delay(2000);
+  delay(100);
 }
-
