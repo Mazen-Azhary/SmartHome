@@ -7,16 +7,27 @@
 ros::NodeHandle nh;
 Servo doorservo;
 
+<<<<<<< HEAD
 const int passwordAddress = 0; // EEPROM address to store password
 
 int storedPassword =123 ;
+=======
+const byte passwordAddress = 0; // EEPROM address to store password
+const byte passwordLength = 3; // password length
+
+char storedPassword[] = "123"; //stored pass
+>>>>>>> ead6b039c8434e2f1c636b1fa5d572d084752686
 
 volatile bool receivedInterrupt = false; // Flag to indicate interrupt received
 volatile bool passwordMatched = false; // Flag to indicate password matched
 #define doorServPin 3
 int pos2 = 0;       //detrmein te pos of the door servo 
 
+<<<<<<< HEAD
 int entered_pass; //variable used to store in it the data that recevied from python node
+=======
+String entered_pass; //variable used to store in it the data that recevied from python node
+>>>>>>> ead6b039c8434e2f1c636b1fa5d572d084752686
 
 void setup()
 {
@@ -58,6 +69,7 @@ void passwordCallback(const std_msgs::String& msg)
   // store the entered password 
   entered_pass = msg.data;
 }
+<<<<<<< HEAD
 
 void servoInterrupt()
 {
@@ -69,6 +81,20 @@ void servoInterrupt()
     }
   
 
+=======
+
+void servoInterrupt()
+{
+  // check if entered password matches stored password
+  if (entered_pass.length() == passwordLength)
+  {
+    if (entered_pass == storedPassword)
+    {
+      passwordMatched = true; // Set flag to indicate password matched
+    }
+  }
+
+>>>>>>> ead6b039c8434e2f1c636b1fa5d572d084752686
   receivedInterrupt = true; // Set flag to indicate interrupt received
 }
 
