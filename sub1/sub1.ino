@@ -89,8 +89,6 @@ void setup() {
   nh.subscribe(Arduino2);
   roomservo.attach(roomservosignal) ;
   pinMode(WHITE, OUTPUT);
-  pinMode(RED, OUTPUT);
-  pinMode(BUZZER, OUTPUT);
   pinMode(H1, OUTPUT);
   pinMode(H2, OUTPUT);
   pinMode(EN, OUTPUT);
