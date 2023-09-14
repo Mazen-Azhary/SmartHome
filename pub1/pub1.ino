@@ -63,11 +63,11 @@ void ultrasonicSensor() {
   digitalWrite(trig, HIGH);
   delayMicroseconds(10);
   digitalWrite(trig, LOW);
-   measurementTime = pulseIn(echo, HIGH);
-  dist = measurementTime * 0.034 / 2;
+   measurementTime = pulseIn(echo, HIGH); //measure the time of the pulses
+  dist = measurementTime * 0.034 / 2;   //distance between object and sensor
 
   if (dist <= ultrasonicMinimumDistance && dist > 0) {
-    publishMessage(ServoOnSymbol);
+    publishMessage(ServoOnSymbol);           //call func puplishmessage to start puplishing
   } else {
     publishMessage(ServoOffSymbol);
   }
