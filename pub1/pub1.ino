@@ -10,22 +10,25 @@
 #define LDR_pin A0
 
 // Thresholds and Constants
-#define ServoMinimumDistance 50
+#define ServoMinimumDistance 10
 #define LDRThreshold 200
 #define DangerousGasThreshold 40
-
-// Message Symbols to be sent to the subscriber switch-case function
+// Message Symbols to be sent to subscriber switchcase function
 #define ServoOnSymbol 1
 #define ServoOffSymbol 2
 #define GasSymbol 3
 #define CurtainsOnSymbol 4
 #define CurtainsOffSymbol 5
-
+int gasReading;
 int lightIntensity = 0;
-float dist = 0;
+int dist = 0;
+int measurementTime =0 ;
+
 ros::NodeHandle nh;
 std_msgs::Int8 PublisherMessage;
-ros::Publisher Arduino1("Orders_Channel", &PublisherMessage);
+ros::Publisher Arduino1("Orders_Channel", &PublisherMessage);//one topic only where symbols will be sent
+
+
 
 void setup() {
   nh.initNode();
@@ -34,22 +37,22 @@ void setup() {
   pinMode(LDR_pin, INPUT);
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT);
+
+  attachInterrupt(BUZZER, gasInterrupt, CHANGE); //use interuppt when the gas sensor run
+
 }
+
+
 
 void loop() {
-  GasCheckFunction(); // Check for gas reading first
-
-  // If the gas reading is high, GasSymbol is sent and nothing else is executed
-  if (PublisherMessage.data == GasSymbol) {
-    delay(5000);
-    nh.spinOnce(); 
-    return; // Exit the loop now
-  }
-
   ultrasonicSensor();
+  gasFunction();
   LDRFunction();
-  nh.spinOnce(); 
+  nh.spinOnce();
 }
+
+
+
 
 void ultrasonicSensor() {
   digitalWrite(trig, LOW);
@@ -57,7 +60,7 @@ void ultrasonicSensor() {
   digitalWrite(trig, HIGH);
   delayMicroseconds(10);
   digitalWrite(trig, LOW);
-  unsigned long measurementTime = pulseIn(echo, HIGH);
+   measurementTime = pulseIn(echo, HIGH);
   dist = measurementTime * 0.034 / 2;
 
   if (dist <= ServoMinimumDistance && dist > 0) {
@@ -67,16 +70,24 @@ void ultrasonicSensor() {
   }
 }
 
-void GasCheckFunction() {
-  int gasReading = analogRead(GasSensor);
 
-  if (gasReading >= DangerousGasThreshold) {
-    publishMessage(GasSymbol); 
-  }
+
+
+void gasFunction() {
+   gasReading = analogRead(GasSensor);
 }
+void gasInterrupt(){
+ if (gasReading >= DangerousGasThreshold) {
+    publishMessage(GasSymbol);}
+}
+
+
+
+
 
 void LDRFunction() {
   lightIntensity = analogRead(LDR_pin);
+
   if (lightIntensity > LDRThreshold) {
     publishMessage(CurtainsOnSymbol);
   } else {
