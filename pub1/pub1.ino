@@ -10,15 +10,18 @@
 #define LDR_pin A0
 
 // Thresholds and Constants
-#define ServoMinimumDistance 10
+#define ultrasonicMinimumDistance 10
 #define LDRThreshold 200
 #define DangerousGasThreshold 40
 // Message Symbols to be sent to subscriber switchcase function
-#define ServoOnSymbol 1
+#define ServoOnSymbol 1 //symbol used to send it o the sub to start servo
 #define ServoOffSymbol 2
 #define GasSymbol 3
 #define CurtainsOnSymbol 4
 #define CurtainsOffSymbol 5
+
+
+
 int gasReading;
 int lightIntensity = 0;
 int dist = 0;
@@ -63,7 +66,7 @@ void ultrasonicSensor() {
    measurementTime = pulseIn(echo, HIGH);
   dist = measurementTime * 0.034 / 2;
 
-  if (dist <= ServoMinimumDistance && dist > 0) {
+  if (dist <= ultrasonicMinimumDistance && dist > 0) {
     publishMessage(ServoOnSymbol);
   } else {
     publishMessage(ServoOffSymbol);
@@ -95,7 +98,7 @@ void LDRFunction() {
   }
 }
 
-void publishMessage(int symbol) {
+void publishMessage(int symbol) {      // func used to send data to the sub 
   PublisherMessage.data = symbol;
   Arduino1.publish(&PublisherMessage);
 }
