@@ -5,7 +5,7 @@
 #include <EEPROM.h>
 
 // Pin Definitions
-#define H1 7
+#define H1 7  //H BRIDGE PIN
 #define H2 8
 #define EN 6
 #define WHITE 5
@@ -25,7 +25,7 @@ int  entered_pass; // Variable used to store the data received from the Python n
 
 
 // Message Symbols to be received from the publisher
-#define ServoOnSymbol 1
+#define ServoOnSymbol 1  //room servo symbol
 #define ServoOffSymbol 2
 #define GasSymbol 3
 #define CurtainsOnSymbol 4
@@ -33,8 +33,8 @@ int  entered_pass; // Variable used to store the data received from the Python n
 
 int roomservosignal = 5;
 Servo roomservo;
-int pos1 = 0;
-bool gasEmergencyActive = false; 
+int pos1 = 0;  //position of the room servo
+bool gasEmergencyActive = false;  
 unsigned long gasEmergencyStartTime; // Timestamp when gas emergency started
 const unsigned long gasEmergencyDuration = 10000; // Duration in milliseconds (e.g., 10 seconds)
 
@@ -159,7 +159,7 @@ void servoInterrupt()
 
 void doorservo_on()
 {
-  for (pos2 = 0; pos2 <= 90; pos2 += 1)
+  for (pos2 = 0; pos2 <= 90; pos2 += 1)  //pos2 is used in door servo
   {
     doorservo.write(pos2);
     delay(2);
@@ -198,8 +198,10 @@ void motorclose() {
   analogWrite(EN, 100);
   digitalWrite(H2, HIGH);
   digitalWrite(H1, LOW);
+
   // Delay to keep the motor on for a specific duration
   delay(2000); // 2seconds (adjust as needed)
+  motorstop() ;
 }
 
 void motoropen() {
@@ -209,6 +211,7 @@ void motoropen() {
   digitalWrite(H2, LOW);
   // Delay to keep the motor on for a specific duration
   delay(2000); // 2 seconds (adjust as needed)
+   motorstop() ;
 }
 
 void motorstop() {
