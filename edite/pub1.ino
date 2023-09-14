@@ -74,7 +74,7 @@ void ultrasonicSensor() {
 void gasFunction() {
   int gasReading = analogRead(GasSensor);
 }
-void servoInterrupt(){
+void gasInterrupt(){
  if (gasReading >= DangerousGasThreshold) {
     publishMessage(GasSymbol);}
 }
