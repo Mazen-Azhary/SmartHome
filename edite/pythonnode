@@ -9,7 +9,7 @@ def send_password():
     rate = rospy.Rate(1)  # 1 message per second
 
     while not rospy.is_shutdown():
-        password = raw_input("Enter the password: ")
+        password = int(input("Enter the password: "))
         pub.publish(password)
         rate.sleep()
 
