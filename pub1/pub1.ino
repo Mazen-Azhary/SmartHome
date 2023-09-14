@@ -13,7 +13,8 @@
 #define ServoMinimumDistance 50
 #define LDRThreshold 200
 #define DangerousGasThreshold 40
-// Message Symbols to be sent to subscriber switchcase function
+
+// Message Symbols to be sent to the subscriber switch-case function
 #define ServoOnSymbol 1
 #define ServoOffSymbol 2
 #define GasSymbol 3
@@ -22,10 +23,9 @@
 
 int lightIntensity = 0;
 float dist = 0;
-
 ros::NodeHandle nh;
 std_msgs::Int8 PublisherMessage;
-ros::Publisher Arduino1("Orders_Channel", &PublisherMessage);//one topic only where symbols will be sent
+ros::Publisher Arduino1("Orders_Channel", &PublisherMessage);
 
 void setup() {
   nh.initNode();
@@ -37,10 +37,18 @@ void setup() {
 }
 
 void loop() {
+  GasCheckFunction(); // Check for gas reading first
+
+  // If the gas reading is high, GasSymbol is sent and nothing else is executed
+  if (PublisherMessage.data == GasSymbol) {
+    delay(5000);
+    nh.spinOnce(); 
+    return; // Exit the loop now
+  }
+
   ultrasonicSensor();
-  gasFunction();
   LDRFunction();
-  nh.spinOnce();
+  nh.spinOnce(); 
 }
 
 void ultrasonicSensor() {
@@ -52,24 +60,23 @@ void ultrasonicSensor() {
   unsigned long measurementTime = pulseIn(echo, HIGH);
   dist = measurementTime * 0.034 / 2;
 
-  while(dist < ServoMinimumDistance) {
-    publishMessage(ServoOnSymbol);//I don't know if this is the best approach but I did a while object is close keep sending servo_on symbol
-  }
+  if (dist <= ServoMinimumDistance && dist > 0) {
+    publishMessage(ServoOnSymbol);
+  } else {
     publishMessage(ServoOffSymbol);
-  
+  }
 }
 
-void gasFunction() {
+void GasCheckFunction() {
   int gasReading = analogRead(GasSensor);
-  
+
   if (gasReading >= DangerousGasThreshold) {
-    publishMessage(GasSymbol);
+    publishMessage(GasSymbol); 
   }
 }
 
 void LDRFunction() {
   lightIntensity = analogRead(LDR_pin);
-
   if (lightIntensity > LDRThreshold) {
     publishMessage(CurtainsOnSymbol);
   } else {
