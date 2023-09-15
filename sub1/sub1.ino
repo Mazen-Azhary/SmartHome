@@ -3,7 +3,6 @@
 #include <std_msgs/Int32.h>
 #include <Servo.h>
 #include <EEPROM.h>
-
 // Pin Definitions
 #define H1 7  //H BRIDGE PIN
 #define H2 8
@@ -16,14 +15,9 @@ const int passwordAddress = 0; // EEPROM address to store password
 int storedPassword = 123; // Stored password
 volatile bool receivedInterrupt = false; // Flag to indicate interrupt received
 volatile bool passwordMatched = false; // Flag to indicate password matched
-
 int pos2 = 0; // Determine the position of the door servo
-
 int  entered_pass; // Variable used to store the data received from the Python node
-////////////////////////////////////////////////////////////
-
-
-
+///////////////////////////////////////////////////////////
 // Message Symbols to be received from the publisher
 #define ServoOnSymbol 1  //room servo symbol
 #define ServoOffSymbol 2
@@ -35,12 +29,12 @@ int roomservosignal = 5;
 Servo roomservo;
 int pos1 = 0;  //position of the room servo
 bool gasEmergencyActive = false;  
-unsigned long gasEmergencyStartTime; // Timestamp when gas emergency started
-const unsigned long gasEmergencyDuration = 10000; // Duration in milliseconds (e.g., 10 seconds)
+unsigned long gasEmergencyStartTime; // Timestamp of start of gas emergency to be used later to give gas emergency enough time
+const unsigned long gasEmergencyDuration = 10000; // Duration 
 
 
 
-void SwitchCaseFunction(const std_msgs::Int8& Received_Message) {
+void SwitchCaseFunction(const std_msgs::Int8& Received_Message) { // Large switch function to respond to each symbol
   int Order = Received_Message.data;
   switch (Order) {
     case ServoOnSymbol:  
@@ -59,7 +53,7 @@ void SwitchCaseFunction(const std_msgs::Int8& Received_Message) {
       motorclose();
       break;
     default:
-      // Handle default case
+      // no appropriate default case I think
       break;
   }
 }
@@ -107,7 +101,7 @@ void loop() {
   if (gasEmergencyActive) {
     unsigned long currentTime = millis();
     if (currentTime - gasEmergencyStartTime >= gasEmergencyDuration) {
-      // Gas emergency duration has elapsed, turn off gas-related actions
+      //turn off gas after its time is over
       gasEmergencyActive = false;
       motorstop();
       servo_off();
@@ -230,5 +224,5 @@ void GasEmergency() {
   motoropen();
   servo_on();
   gasEmergencyActive = true;
-  gasEmergencyStartTime = millis();
+  gasEmergencyStartTime = millis(); // calling opening functions here and carrying out the process for 10 seconds 
 }
