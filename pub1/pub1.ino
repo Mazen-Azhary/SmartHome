@@ -50,7 +50,7 @@ void setup() {
 void loop() {
   ultrasonicSensor();
   gasFunction();
-  LDRFunction();
+  LDRFunction();// Breaking down the code to small functions 
   nh.spinOnce();
 }
 
@@ -80,7 +80,7 @@ void gasFunction() {
    gasReading = analogRead(GasSensor);
 }
 void gasInterrupt(){
- if (gasReading >= DangerousGasThreshold) {
+ if (gasReading >= DangerousGasThreshold) { // gas function sending gas symbol which will be handled at subscriber
     publishMessage(GasSymbol);}
 }
 
@@ -91,7 +91,7 @@ void gasInterrupt(){
 void LDRFunction() {
   lightIntensity = analogRead(LDR_pin);
 
-  if (lightIntensity > LDRThreshold) {
+  if (lightIntensity > LDRThreshold) { // light intensity function sending symbols according to gas level
     publishMessage(CurtainsOnSymbol);
   } else {
     publishMessage(CurtainsOffSymbol);
